@@ -10,16 +10,16 @@ poolobj = parpool;
 fprintf('Number of workers: %g\n', poolobj.NumWorkers);
 
 %%% set parameters
-p.strike = 100; p.rate = 0.03; p.dividend = 0;
-p.expiration = 0.25;
+p.strike = 100; p.rate = 0; p.dividend = 0.02;
+p.expiration = 2;
 p.dim = 2;                                          % asset number
 p.S0 = 100*ones(p.dim,1);
-p.volatility = diag(ones(p.dim,1))*0.2;
-p.correlation = 0.5*eye(p.dim) + 0.5*ones(p.dim);
+p.volatility = diag(ones(p.dim,1))*0.25;
+p.correlation = 0.25*eye(p.dim) + 0.75*ones(p.dim);
 p.numTimeStep = 50;
-p.callput = 'put';
+p.callput = 'call';
 
-M = 100000;
+M = 720000;
 order = 10;
 I = hyperbolic_cross_indices(p.dim, order);
 Nbasis = size(I,1);
@@ -39,6 +39,8 @@ end
 
 % save(['data/' file_name '.mat']);
 mean(V0_vals)
+
+delete(gcp('nocreate'))
 
 function V0 = run_geobaskput_lsm(p, M, order)
 type = 'norm_hermite';
