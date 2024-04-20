@@ -25,7 +25,7 @@ I = hyperbolic_cross_indices(p.dim, order);
 Nbasis = size(I,1);
 
 %%% running parameters
-num_trials = 1; 
+num_trials = 10; 
 file_name = ['geobaskput_LSM_d' num2str(p.dim) '_M' num2str(M)...
     '_order' num2str(order) '_Nb' num2str(Nbasis) '_trials' num2str(num_trials)];
 V0_vals = zeros(num_trials, 1);
