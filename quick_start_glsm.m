@@ -4,11 +4,11 @@ clear, clc, close all
 % [1] Yang and Li (2024). Gradient-enhanced sparse Hermite polynomial
 % expansions for pricing and hedging high-dimensional American options
 
-addpath ../utils
+addpath utils
 %%% set parameters
 p.strike = 100; p.rate = 0.05; p.dividend = 0.1;
 p.expiration = 3;
-p.dim = 5;                                   % asset number
+p.dim = 2;                                   % asset number
 p.S0 = 100*ones(p.dim,1);
 p.volatility = diag(ones(p.dim,1))*0.2;
 p.correlation = eye(p.dim);
