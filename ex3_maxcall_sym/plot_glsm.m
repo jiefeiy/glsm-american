@@ -93,3 +93,35 @@ legend('continue', 'exercise');
 ax = gca;
 ax.FontSize = 16;
 % exportgraphics(ax,['glsm_maxcall_t_' num2str(k_plot) '.eps'],'Resolution',300)
+
+
+%%% compute delta at t=0 %%%%
+A1 = generate_poly_hermite(type, I, zeros(1,d), scale); 
+A = repmat(A1, M, 1);
+for j = 1:d
+    dW = Wpaths(:,j,1);
+    for n = 1:Nbasis
+        if I(n,j) >= 1 
+            A(:,n) = A(:,n) + dW .* A1(:,loc_grad(n,j)) * sqrt(I(n,j)/scale);
+        end
+    end
+end
+beta = cgs(A'*A/M, A'*payoff/M);
+c0 = A1*beta;
+Z0 = zeros(d,1);
+for j = 1:d
+    G = zeros(1, Nbasis);
+    for n = 1:Nbasis
+        if I(n,j) >= 1
+            G(n) = A1(:,loc_grad(n,j)) * sqrt(I(n,j)/scale);
+        end
+    end
+    Z0(j) = G * beta;
+end
+
+[Q, Lambda] = eig(sig*P*sig');
+[diag_ele, ind] = sort(diag(Lambda),'descend');
+Q = Q(:, ind); Lambda = diag(diag_ele);                  % eigen pairs of \Sigma*P*\Sigma^\top
+
+dw_ds = Q ./ sqrt(diag(Lambda))' ./ S0;
+delta0 = dw_ds * Z0
