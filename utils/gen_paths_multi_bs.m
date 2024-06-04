@@ -13,7 +13,8 @@ dt = T/N;
 [Q, Lambda] = eig(vol*P*vol');
 [diag_ele, ind] = sort(diag(Lambda),'descend');
 Q = Q(:, ind); Lambda = diag(diag_ele);                  % eigen pairs of \Sigma*P*\Sigma^\top
-mu = Q'*(r - di -.5*vol^2*ones(d,1));                          % sigma = sqrt(diag(Lambda))
+% mu = Q'*(r - di -.5*vol^2*ones(d,1));                          % sigma = sqrt(diag(Lambda))
+mu = Q'*(r - di -.5*diag(vol*vol'));                          % sigma = sqrt(diag(Lambda))
 SIG = sqrt(diag(Lambda))';
 
 % generate paths
