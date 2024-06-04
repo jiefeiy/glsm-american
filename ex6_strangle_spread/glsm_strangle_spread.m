@@ -25,6 +25,30 @@ p.numTimeStep = 48;
 
 M = 200000;
 order = 15;                                  % polynomials up to the order 
+I = hyperbolic_cross_indices(p.dim, order);   % generate hyperbolic cross index set
+Nbasis = size(I,1);
+
+%%% running parameters
+num_trials = 10;
+file_name = ['strangle_spread_basket_M' num2str(M) '_order' num2str(order) ...
+    '_Nb' num2str(Nbasis) '_trails' num2str(num_trials)];
+V0_vals = zeros(num_trials, 1);
+time_vals = zeros(num_trials, 5);
+
+%%% run and save
+for t = 1:num_trials
+    [V0_vals(t, 1), time_vals(t, :)] = run_glsm_strangle_spread(p, M, order);
+    fprintf('run trial no.%d, price = %1.4f \n',  t, V0_vals(t, 1) );
+    disp(['Times: ' num2str(time_vals(t,:))]);
+    fprintf('---------------------------------------------\n');
+end
+
+save(['data/' file_name '.mat']);
+mean(V0_vals)
+std(V0_vals)
+mean(time_vals, 1)
+
+function [V0, time] = run_glsm_strangle_spread(p, M, order)
 type = 'norm_hermite';
 K = p.strike;
 r = p.rate;
@@ -34,13 +58,11 @@ N = p.numTimeStep;
 dt = T/N;
 tau = N*ones(M,1);
 
-I = hyperbolic_cross_indices(p.dim, order);   % generate hyperbolic cross index set
+I = hyperbolic_cross_indices(p.dim, order); 
 Nbasis = size(I,1);
 
 [Wpaths,Spaths] = gen_paths_multi_bs(p, M);
 valueMatrix = payoff_strangle_spread(Spaths, K, r, dt);
-
-% determine the location of gradient basis for assembling matrix A
 loc_grad = zeros(Nbasis, d);
 for n = 1:Nbasis
     target = I(n,:) - eye(d);
@@ -49,15 +71,16 @@ for n = 1:Nbasis
 end
 
 % Dynamic programming
+tStart = tic;
 payoff = valueMatrix(:,N);
 for k = N-1:-1:1
     scale = k*dt;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % generate basis matrix
-    A1 = generate_poly_hermite_dir(type, I, Wpaths(:,:,k), scale); 
-    % use utils/generate_poly_hermite_par.m instead for efficiency in large scale
+    t_sub1 = tic;
+    A1 = generate_poly_hermite(type, I, Wpaths(:,:,k), scale); 
+    tend_sub1 = toc(t_sub1);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % assemble coefficient matrix of linear system 
+    t_sub2 = tic;
     A = A1;
     for j = 1:d
         dW = (Wpaths(:,j,k+1) - Wpaths(:,j,k));
@@ -67,10 +90,14 @@ for k = N-1:-1:1
             end
         end
     end
+    tend_sub2 = toc(t_sub2);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % solving linear system 
+    t_sub3 = tic;
     beta = A \ payoff;
+%     beta = cgs(A'*A/M, A'*payoff/M);
+    tend_sub3 = toc(t_sub3);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    t_sub4 = tic;
     CV = A1*beta;               % compute continuation value
     EV = valueMatrix(:,k);      % exercise value
      
@@ -78,32 +105,13 @@ for k = N-1:-1:1
     tau(idx) = k;
     payoff(idx) = EV(idx);      % update the value
     payoff(~idx) = CV(~idx);
-    disp(['computing time step k=' num2str(k)]);
+    tend_sub4 = toc(t_sub4);
 end
 %%% compute price at t=0
 idx = sub2ind(size(valueMatrix), 1:M, tau');
 V0 = mean(valueMatrix(idx));
-fprintf('The option price is %1.4f. \n', V0);
+tTotal = toc(tStart);
 
-function A = generate_poly_hermite_dir(type, I, grid, scale)
-% grid should be a column vector
-[N,d] = size(I);       % get N (number of matrix columns) and d (dimension)
-M = size(grid,1);      % get m (number of matrix rows)
-A = zeros(M,N);        % initialize A
-order = max(I(:));     % find maximum polynomial degree
-P1 = cell(1,d);        % store 1d basis
-for j = 1:d
-    yy = grid(:,j);
-    P1{j} = generate_poly_basis_1d(type, order, yy, scale);   % M-by-(order+1) matrix
+time = [tend_sub1, tend_sub2, tend_sub3, tend_sub4, tTotal];
 end
-% assemble d-dim basis by tensor product
-for n = 1:N
-    P_all = zeros(M,d);
-    for j = 1:d
-        P_all(:,j) = P1{j}(:, I(n,j)+1);
-    end
-    A(:,n) = prod(P_all,2);
-end
-end
-
 
