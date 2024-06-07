@@ -1,6 +1,6 @@
 # glsm-american
 
-This repository includes numerical examples for the paper "Gradient-enhanced sparse Hermite polynomial expansions for pricing and hedging high-dimensional American options" by Jiefei Yang and Guanglian Li, 2024. 
+This repository includes numerical examples for the paper [Gradient-enhanced sparse Hermite polynomial expansions for pricing and hedging high-dimensional American options](https://arxiv.org/abs/2405.02570) by Jiefei Yang and Guanglian Li, 2024. 
 
 ## Quick start
 To see how G-LSM method works in a 2-d max-call example, git clone this repo, and run `./quick_start_glsm.m`. 
@@ -24,5 +24,16 @@ Parameters used in examples are listed as follows.
 ## Other methods
 - Least squares Monte Carlo (LSM): `./ex1_geobaskput/lsm_geobaskput.m` tests with LSM. Longstaff, F. and Schwartz, E. (2001). Valuing American
 options by simulation: a simple least-squares approach.
-- Cosine method (COS) under Heston model: `./ex5_heston/cos_heston.m` tests with COS. Fang, F. and Oosterlee, C. W. (2011). A Fourier-based valua-
-tion method for Bermudan and barrier options under Heston’s model.
+- Cosine method (COS) under Heston model: `./ex5_heston/cos_heston.m` tests with COS. Fang, F. and Oosterlee, C. W. (2011). A Fourier-based valuation
+method for Bermudan and barrier options under Heston’s model.
+
+## Citation
+```
+@article{yang2024gradient,
+  title={Gradient-enhanced sparse Hermite polynomial expansions for pricing and hedging high-dimensional American options},
+  author={Yang, Jiefei and Li, Guanglian},
+  journal={arXiv preprint arXiv:2405.02570},
+  year={2024}
+}
+```
+
