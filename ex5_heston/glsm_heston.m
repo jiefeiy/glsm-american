@@ -19,7 +19,7 @@ addpath ../utils
 % V_ref_2011 = [2.000000   1.107621   0.520030   0.213677   0.082044]; 
 % V_ref_2015 = [2.0000     1.1081     0.5204    0.2143     0.0827];
 
-p.S0       = 12; 
+p.S0       = 10; 
 p.strike   = 10;
 p.v0       = 0.0625;
 p.rate     = 0.1;
@@ -42,7 +42,7 @@ file_name = ['heston_GLSM_So' num2str(p.S0) '_M' num2str(M) '_Nb' num2str(Nbasis
     '_trials' num2str(num_trials)];
 V0_vals = zeros(num_trials, 1);
 
-warning('off');
+% warning('off');
 %%% run and save 
 for t = 1:num_trials
     V0_vals(t, 1) = run_heston(p, M, I);
@@ -73,7 +73,7 @@ domain_logv = [-7, log(0.8)];
 type = {'norm_hermite', 'chebyshev'};
 for k = N-1:-1:1
     xstd = std(Xpaths(:,1,k), 0, 1);
-    scale = {xstd, domain_logv};
+    scale = {xstd^2, domain_logv};
     [A1, G] = gen_poly_basis_grad(type, I', Xpaths(:,:,k), scale); 
     dW1 = (Wpaths(:,1,k+1) - Wpaths(:,1,k));
     dW2 = (Wpaths(:,2,k+1) - Wpaths(:,2,k));
