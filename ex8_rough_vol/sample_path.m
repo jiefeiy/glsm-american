@@ -26,14 +26,14 @@ plot(time, Spaths(1:50, :));
 xlabel('time'); ylabel('S_t');
 ax = gca;
 ax.FontSize = 16;
-exportgraphics(ax,'rough_price_H0.1.eps','Resolution',300)
+exportgraphics(ax,'fig_rough_price_H0.1.eps','Resolution',300)
 
 figure(2);
 plot(time, log(ypaths(1:50, :)));
-xlabel('time'); ylabel('y_t');
+xlabel('time'); ylabel('ln(U_t)');
 ax = gca;
 ax.FontSize = 16;
-exportgraphics(ax,'rough_y_H0.1.eps','Resolution',300)
+exportgraphics(ax,'fig_rough_y_H0.1.eps','Resolution',300)
 
 
 
